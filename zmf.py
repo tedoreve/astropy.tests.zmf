@@ -7,13 +7,15 @@ Created on Mon Jul  4 17:49:54 2016
 
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib.path as mpath
+import matplotlib.patches as patches
 from astropy import units as u
 from astropy import wcs
 import copy as cp
 
 def distance2diameter(distance,angle):
-    '''distance(kpc) angle(arcmin) return(pc)'''
+    '''
+    distance(kpc) angle(arcmin) return(pc)
+    '''
     return distance*1000*angle/60/180*np.pi
     
 def conversion(v,bmaj,bmin):
@@ -27,6 +29,32 @@ def conversion(v,bmaj,bmin):
     freq = v*u.GHz
     equiv = u.brightness_temperature(beam_area, freq)
     return u.Jy.to(u.K, equivalencies=equiv)  
+
+def dist(l,b,d,V = 220,v_sun = 220,r_sun = 8.5):
+    '''
+    return Galactic rotation model
+    l(deg) b(deg) d(a list of distance) return(v,d)
+    '''
+    b = np.deg2rad(b)
+    l = np.deg2rad(l)
+    r = (r_sun**2+(d*np.cos(b))**2-2*r_sun*d*np.cos(b)*np.cos(l))**0.5
+    v = V*r_sun*np.sin(l)*np.cos(b)/r-v_sun*np.sin(l)*np.cos(b) 
+    return v,d
+
+def con(data,head,region,levels):
+    '''
+    plot contour map
+    '''
+    l1,l2,b1,b2 = region  
+    x1,y1,x2,y2 = coo_box(head,region)
+    
+    plt.subplots() 
+    plt.contour(data,levels=levels,origin='lower',interpolation='nearest',extent=[l2,l1,b1,b2])
+    plt.colorbar()
+    
+    plt.xlim(l2,l1)
+    plt.ylim(b1,b2)
+    plt.grid() 
 
 def plot_2Dfits(data,head,contrast):
     '''
@@ -103,6 +131,7 @@ def velocity(data,head):
 def box(data,head,contrast,region,onoff,*args):
     '''
     plot box pixel coordinates
+    return(data_onoff,data_region)
     '''
     l1,l2,b1,b2 = region  
     x1,y1,x2,y2 = coo_box(head,region)
@@ -114,25 +143,15 @@ def box(data,head,contrast,region,onoff,*args):
         result1 = data[args[0],y1:y2,x1:x2] 
     result1 = (result1-np.mean(result1))+np.mean(result1)*contrast
     
-    plt.subplots() 
-    plt.imshow(result1,origin='lower',interpolation='nearest',extent=[l2,l1,b1,b2])
-    plt.colorbar()   
     
-    Path = mpath.Path
-    path_data = [
-        (Path.MOVETO, (onoff[0], onoff[2])),
-        (Path.CURVE4, (onoff[0], onoff[3])),
-        (Path.CURVE4, (onoff[1], onoff[3])),
-        (Path.CURVE4, (onoff[1], onoff[2])),
-        (Path.CLOSEPOLY, (onoff[0], onoff[2])),   
-        ]
-    codes, verts = zip(*path_data)
-    path = Path(verts, codes)
-    x, y = zip(*path.vertices)
-    plt.plot(x, y, 'go-')
-    plt.xlim(l2,l1)
-    plt.ylim(b1,b2)
-    plt.grid()
+    fig = plt.figure()
+    ax = fig.add_subplot(111, aspect='equal')
+    neg = ax.imshow(result1,origin='lower',interpolation='nearest',extent=[l2,l1,b1,b2])
+    fig.colorbar(neg,ax=ax)
+    ax.add_patch(patches.Rectangle((onoff[0], onoff[2]),onoff[1]-onoff[0],    \
+                                   onoff[3]-onoff[2],fill=False))
+    ax.set_xlim(l2,l1)
+    ax.set_ylim(b1,b2)
     
     x1,y1,x2,y2 = coo_box(head,onoff)  
     if data.ndim == 2:
@@ -146,6 +165,7 @@ def box(data,head,contrast,region,onoff,*args):
 def circle(data,head,contrast,region,onoff,*args):
     '''
     plot circle pixel coordinates
+    return(data_onoff,data_region)
     '''
     l1,l2,b1,b2 = region  
     x1,y1,x2,y2 = coo_box(head,region)
@@ -182,6 +202,8 @@ def circle(data,head,contrast,region,onoff,*args):
                     result2[:,i,j]=0
                            
     return result2,result0
+
+
 
  
 
