@@ -37,7 +37,7 @@ def conversion(v,bmaj,bmin):
         equiv = u.brightness_temperature(beam_area, freq)
     return u.Jy.to(u.K, equivalencies=equiv)  
 
-def dist(l,b,d,V,v_sun ,r_sun):
+def dist(l,b,d,V,v_sun = 240 ,r_sun = 8.34):
     '''
     return Galactic rotation model
     l(deg) b(deg) d(a list of distance) return(v,d)
