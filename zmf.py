@@ -16,9 +16,9 @@ import time
 from functools import wraps  
    
 def tt(function):  
-	'''
-	time test decorator
-	'''
+    '''
+    time test decorator
+    '''
     @wraps(function)  
     def function_timer(*args, **kwargs):  
         t0 = time.time()  
