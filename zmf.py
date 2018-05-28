@@ -16,7 +16,7 @@ import time
 from functools import wraps  
    
 
-def cf(temperature,plot=True):
+def cf(temperature,plot=False):
     '''
     calculate cooling function lambda(T)
     temperature(K), return(erg cm^-3 s^-1)
