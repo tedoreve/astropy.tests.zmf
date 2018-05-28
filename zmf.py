@@ -15,6 +15,20 @@ import copy as cp
 import time  
 from functools import wraps  
    
+
+def cf(temperature,plot=True):
+    '''
+    calculate cooling function lambda(T)
+    temperature(K), return(erg cm^-3 s^-1)
+    array input is accessible
+    '''
+    cooling = np.loadtxt('cooling.dat')
+    if plot:
+        plt.loglog(cooling[:,0],cooling[:,1])
+        plt.loglog(temperature,np.interp(temperature, cooling[:,0],cooling[:,1]),'o')
+    
+    return np.interp(temperature, cooling[:,0],cooling[:,1])
+    
 def tt(function):  
     '''
     time test decorator
