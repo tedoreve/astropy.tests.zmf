@@ -162,7 +162,7 @@ def coo_box(head,region):
     if head['NAXIS'] == 4:
         x1,y1,v,s = w.wcs_world2pix(l2,b1,0,0,0)
         x2,y2,v,s = w.wcs_world2pix(l1,b2,0,0,0)
-    return x1,y1,x2,y2
+    return int(x1),int(y1),int(x2),int(y2)
 
 def coo_tri(head,region):
     '''
