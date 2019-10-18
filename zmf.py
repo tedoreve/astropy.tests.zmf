@@ -46,12 +46,18 @@ def tt(function):
 
     
 
-def distance2diameter(distance,angle):
+def distance2diameter(distance, angle):
     '''
     distance(kpc) angle(arcmin) return(pc)
     '''
     return distance*1000*angle/60/180*np.pi
-    
+
+def diameter2arcmin(distance, diameter):
+    '''
+    distance(kpc) diameter(pc) return(arcmin) 
+    '''
+    return diameter/distance/1000/np.pi*180*60
+
 def conversion(v,bmaj,bmin):
     '''
     v(GHz),bmaj(deg),bmin(deg),retrun(Jy/beam -> K)
