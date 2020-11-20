@@ -17,19 +17,33 @@ import copy as cp
 import time
 from functools import wraps
 
+def T2I(temperature, v, bmaj, bmin):
+    '''
+    calculate intensity
+    temperature(K) v(GHz) bmaj(arcsec) bmin(arcsec)
+    return 1 (Jy/beam)
+    '''
+    fwhm_to_sigma = 1./(8*np.log(2))**0.5
+    beam_area = 2.*np.pi*(bmaj*un.arcsec*bmin*un.arcsec*fwhm_to_sigma**2)
+    freq = v*u.GHz
+    equiv = u.brightness_temperature(freq)
+
+    return temperature/(u.Jy/beam_area).to(u.K, equivalencies=equiv)
+
+
 def mdotrhov(parameter, r=0, mdot=0, rho=0, v=0):
     '''
     calculate mdot, rho, v in stellar winds
     parameter(choose in mdot, rho, v)
-    r (pc) m_dot(M_sun/yr) rho('cm^-3') v(km/s)
+    r(pc) m_dot(M_sun/yr) rho('cm^-3') v(km/s)
     return based on the parameter chosen
     '''
     if parameter == 'mdot':
-        return (4*np.pi*r*(un.pc)**2*rho*un.cm**-3*const.m_p*v*un.km/un.s).to('M_sun/yr')
+        return (4*np.pi*(r*un.pc)**2*rho*un.cm**-3*const.m_p*v*un.km/un.s).to('M_sun/yr')
     if parameter == 'rho':
-        return (mdot*un.M_sun/un.yr/(4*np.pi*r*(un.pc)**2*const.m_p*v*un.km/un.s)).to('cm^-3')
+        return (mdot*un.M_sun/un.yr/(4*np.pi*(r*un.pc)**2*const.m_p*v*un.km/un.s)).to('cm^-3')
     if parameter == 'v':
-        return (mdot*un.m_sun/un.yr/(4*np.pi*r*(un.pc)**2*rho*un.cm**-3*con.m_p)).to('km/s')
+        return (mdot*un.m_sun/un.yr/(4*np.pi*(r*un.pc)**2*rho*un.cm**-3*con.m_p)).to('km/s')
 
 def T2S(temperature, gamma, m = 1):
     '''
